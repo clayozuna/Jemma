@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jemma & Clay Countdown</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #ffdde1, #ee9ca7);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #fff;
+      text-shadow: 2px 2px 8px rgba(255, 105, 135, 0.8);
+    }
+
+    #countdown {
+      font-size: 3em;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+    }
+
+    .location {
+      font-size: 1.2em;
+      color: white;
+      margin-top: 15px;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .hearts {
+      font-size: 2em;
+      animation: floatHearts 2s infinite alternate ease-in-out;
+    }
+
+    @keyframes floatHearts {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+
+    .glow-heart {
+      font-size: 4em;
+      margin-top: 20px;
+      animation: pulse 1.5s infinite;
+      filter: drop-shadow(0 0 10px rgba(255, 0, 100, 0.7));
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .love-note {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: white;
+      max-width: 600px;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8em;
+      }
+
+      #countdown {
+        font-size: 2.2em;
+      }
+
+      .location,
+      .love-note {
+        font-size: 1em;
+        padding: 0 10px;
+      }
+
+      .glow-heart {
+        font-size: 3em;
+      }
+
+      .hearts {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🎵 Background Music -->
+  <audio autoplay loop>
+    <source src="Can I Have The Day With You.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <div class="hearts">💕💫💕</div>
+  <h1>When do Jemma and Clay meet next?</h1>
+  <div id="countdown">Loading...</div>
+
+  <!-- 📍 Location -->
+  <div class="location">📍 Pyeongtaek, South Korea</div>
+
+  <div class="glow-heart">❤️</div>
+  <div class="hearts">💞🌙💞</div>
+
+  <p class="love-note">
+    Towards the Future. Kohti tulevaisuutta. 미래를 향하여.
+  </p>
+
+  <script>
+    const targetDate = new Date("2025-08-08T11:55:55").getTime();
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance <= 0) {
+        document.getElementById("countdown").innerHTML = "💞 It's time — you're finally in each other's arms! 💑";
+        clearInterval(timer);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById("countdown").innerHTML =
+        `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    const timer = setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>
