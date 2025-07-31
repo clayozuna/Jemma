@@ -23,20 +23,17 @@
     h1 {
       font-size: 2.5em;
       margin-bottom: 20px;
-      color: #fff;
       text-shadow: 2px 2px 8px rgba(255, 105, 135, 0.8);
     }
 
     #countdown {
       font-size: 3em;
       font-weight: bold;
-      color: #fff;
       text-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
     }
 
     .location {
       font-size: 1.2em;
-      color: white;
       margin-top: 15px;
       text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
     }
@@ -67,39 +64,40 @@
     .love-note {
       margin-top: 20px;
       font-size: 1.2em;
-      color: white;
       max-width: 600px;
     }
 
+    .play-button {
+      margin-top: 20px;
+      font-size: 1.1em;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 12px;
+      background-color: #ff85a2;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .play-button:hover {
+      background-color: #ff4e80;
+    }
+
     @media (max-width: 600px) {
-      h1 {
-        font-size: 1.8em;
-      }
-
-      #countdown {
-        font-size: 2.2em;
-      }
-
-      .location,
-      .love-note {
-        font-size: 1em;
-        padding: 0 10px;
-      }
-
-      .glow-heart {
-        font-size: 3em;
-      }
-
-      .hearts {
-        font-size: 1.5em;
-      }
+      h1 { font-size: 1.8em; }
+      #countdown { font-size: 2.2em; }
+      .location, .love-note { font-size: 1em; padding: 0 10px; }
+      .glow-heart { font-size: 3em; }
+      .hearts { font-size: 1.5em; }
     }
   </style>
 </head>
 <body>
 
-  <!-- 🎵 Background Music -->
-  <audio autoplay loop>
+  <!-- 🎵 Music Controls -->
+  <button class="play-button" onclick="document.getElementById('bg-music').play()">🎵 Play Our Song</button>
+  <audio id="bg-music" loop>
     <source src="song.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
@@ -108,9 +106,7 @@
   <h1>When do Jemma and Clay meet next?</h1>
   <div id="countdown">Loading...</div>
 
-  <!-- 📍 Location -->
   <div class="location">📍 Pyeongtaek, South Korea</div>
-
   <div class="glow-heart">❤️</div>
   <div class="hearts">💞🌙💞</div>
 
