@@ -89,13 +89,15 @@
     .falling-photo {
       position: absolute;
       top: -150px;
-      opacity: 0.85;
+      opacity: 0;
       width: 100px;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       animation-name: fall;
       animation-timing-function: linear;
       animation-iteration-count: 1;
+      animation-fill-mode: forwards;
+      pointer-events: none;
     }
 
     @keyframes fall {
@@ -132,7 +134,7 @@
   <div class="hearts">💞🌙💞</div>
   <p class="love-note">Towards the Future. Kohti tulevaisuutta. 미래를 향하여.</p>
 
-  <!-- 📜 Countdown Script -->
+  <!-- ⏳ Countdown Script -->
   <script>
     function playMusic() {
       const audio = document.getElementById("bg-music");
@@ -168,7 +170,7 @@
     updateCountdown();
   </script>
 
-  <!-- 💧 Falling Images Script -->
+  <!-- 📸 Falling Images Script -->
   <script>
     const imageSources = [
       'jem1.jpeg', 'jem2.jpeg', 'jem3.jpeg', 'jem4.jpeg', 'jem5.jpeg',
@@ -176,37 +178,34 @@
     ];
 
     function createFallingImage() {
-    const img = document.createElement('img');
-    img.src = imageSources[Math.floor(Math.random() * imageSources.length)];
-    img.style.position = 'absolute';
-    img.style.top = '-150px';
-    img.style.left = Math.random() * 90 + '%';
-    img.style.opacity = 0.85;
-    img.style.width = '100px';
-    img.style.borderRadius = '10px';
-    img.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
-    
-    const duration = Math.random() * 8 + 12;
-    const delay = Math.random();
-    img.style.animation = `fall ${duration}s linear ${delay}s 1`;
+      const img = document.createElement('img');
+      img.src = imageSources[Math.floor(Math.random() * imageSources.length)];
+      img.classList.add('falling-photo');
 
-    // Add to DOM
-    document.body.appendChild(img);
+      // Position and animation timing
+      img.style.left = Math.random() * 90 + '%';
+      const duration = Math.random() * 8 + 12; // 12–20s
+      const delay = Math.random(); // 0–1s
 
-    // Force reflow before applying class (prevents flash at top)
-    void img.offsetWidth;
+      img.style.animationDuration = `${duration}s`;
+      img.style.animationDelay = `${delay}s`;
+      img.style.visibility = 'hidden'; // prevent flash
 
-    img.classList.add('falling-photo');
+      document.body.appendChild(img);
 
-    // Clean up
-    setTimeout(() => {
-      img.remove();
-    }, (duration + delay + 1) * 1000);
-}
+      // Make visible right before animation starts
+      setTimeout(() => {
+        img.style.visibility = 'visible';
+      }, delay * 1000);
 
+      // Clean up after animation ends
+      setTimeout(() => {
+        img.remove();
+      }, (duration + delay + 0.5) * 1000);
+    }
 
     function loopRandomImages() {
-      const randomDelay = Math.random() * 2000 + 800; // 0.8s–2.8s
+      const randomDelay = Math.random() * 5000 + 3000; // 3–8 seconds between falls
       setTimeout(() => {
         createFallingImage();
         loopRandomImages();
