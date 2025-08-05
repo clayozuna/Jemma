@@ -18,6 +18,8 @@
       text-align: center;
       padding: 20px;
       box-sizing: border-box;
+      overflow: hidden;
+      position: relative;
     }
 
     h1 {
@@ -84,12 +86,31 @@
       background-color: #ff4e80;
     }
 
+    .falling-photo {
+      position: absolute;
+      top: -150px;
+      opacity: 0.85;
+      width: 100px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-iteration-count: 1;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-150px) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
+    }
+
     @media (max-width: 600px) {
       h1 { font-size: 1.8em; }
       #countdown { font-size: 2.2em; }
       .location, .love-note { font-size: 1em; padding: 0 10px; }
       .glow-heart { font-size: 3em; }
       .hearts { font-size: 1.5em; }
+      .falling-photo { width: 80px; }
     }
   </style>
 </head>
@@ -102,18 +123,16 @@
     Your browser does not support the audio element.
   </audio>
 
+  <!-- 💕 Content -->
   <div class="hearts">💕💫💕</div>
   <h1>When do Jemma and Clay meet next?</h1>
   <div id="countdown">Loading...</div>
-
   <div class="location">📍 Pyeongtaek, South Korea</div>
   <div class="glow-heart">❤️</div>
   <div class="hearts">💞🌙💞</div>
+  <p class="love-note">Towards the Future. Kohti tulevaisuutta. 미래를 향하여.</p>
 
-  <p class="love-note">
-    Towards the Future. Kohti tulevaisuutta. 미래를 향하여.
-  </p>
-
+  <!-- 📜 Countdown Script -->
   <script>
     function playMusic() {
       const audio = document.getElementById("bg-music");
@@ -147,6 +166,54 @@
 
     const timer = setInterval(updateCountdown, 1000);
     updateCountdown();
+  </script>
+
+  <!-- 💧 Falling Images Script -->
+  <script>
+    const imageSources = [
+      'jem1.jpeg', 'jem2.jpeg', 'jem3.jpeg', 'jem4.jpeg', 'jem5.jpeg',
+      'jem6.jpeg', 'jem7.jpeg', 'jem8.jpeg', 'jem9.jpeg', 'jem10.jpeg', 'jem11.jpeg'
+    ];
+
+    function createFallingImage() {
+    const img = document.createElement('img');
+    img.src = imageSources[Math.floor(Math.random() * imageSources.length)];
+    img.style.position = 'absolute';
+    img.style.top = '-150px';
+    img.style.left = Math.random() * 90 + '%';
+    img.style.opacity = 0.85;
+    img.style.width = '100px';
+    img.style.borderRadius = '10px';
+    img.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+    
+    const duration = Math.random() * 8 + 12;
+    const delay = Math.random();
+    img.style.animation = `fall ${duration}s linear ${delay}s 1`;
+
+    // Add to DOM
+    document.body.appendChild(img);
+
+    // Force reflow before applying class (prevents flash at top)
+    void img.offsetWidth;
+
+    img.classList.add('falling-photo');
+
+    // Clean up
+    setTimeout(() => {
+      img.remove();
+    }, (duration + delay + 1) * 1000);
+}
+
+
+    function loopRandomImages() {
+      const randomDelay = Math.random() * 2000 + 800; // 0.8s–2.8s
+      setTimeout(() => {
+        createFallingImage();
+        loopRandomImages();
+      }, randomDelay);
+    }
+
+    loopRandomImages();
   </script>
 </body>
 </html>
