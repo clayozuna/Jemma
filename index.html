@@ -3,92 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jemma & Clay Countdown</title>
+  <title>Jemma & Clay – Visits & Countdown</title>
   <style>
+    :root{
+      --bg1:#ffdde1;
+      --bg2:#ee9ca7;
+      --pink:#ff85a2;
+      --pink-dark:#ff4e80;
+    }
+
+    /* Base */
+    html,body{height:100%}
     body {
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to bottom right, #ffdde1, #ee9ca7);
+      background: linear-gradient(to bottom right, var(--bg1), var(--bg2));
       color: white;
-      height: 100vh;
+      min-height:100vh;
       overflow: hidden;
     }
 
-    #main-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      text-align: center;
-      transition: opacity 1.5s ease-in-out;
-      position: relative;
-      z-index: 1;
+    /* Tabs */
+    .tabs {
+      display:flex;
+      gap:.5rem;
+      padding:.75rem 1rem;
+      position: sticky;
+      top:0;
+      background: linear-gradient(to bottom right, var(--bg1), var(--bg2));
+      z-index:1000;
+      backdrop-filter: blur(6px);
+    }
+    .tab-btn{
+      border:none;
+      padding:.6rem 1rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+      color:#fff;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 4px 10px rgba(0,0,0,.15);
+      transition: transform .15s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .tab-btn.active{
+      background:#ffffff;
+      color:#cc2a59;
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+      transform: translateY(-1px);
     }
 
-    #main-content.fade-out {
-      opacity: 0;
+    /* Shared main content */
+    .section {
+      height: calc(100vh - 56px);
+      display:none;
     }
+    .section.active { display:block; }
+
+    .main-content {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      height:100%;
+      text-align:center;
+      transition: opacity 1.2s ease-in-out;
+      position:relative;
+      z-index:1;
+      padding: 1rem;
+    }
+    .main-content.fade-out { opacity:0; }
 
     .play-button {
       margin-top: 10px;
-      font-size: 1.1em;
+      font-size: 1.05em;
       padding: 10px 20px;
       border: none;
       border-radius: 12px;
-      background-color: #ff85a2;
+      background-color: var(--pink);
       color: white;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.25s ease, transform .1s ease;
     }
+    .play-button:hover { background-color: var(--pink-dark); }
+    .play-button:active { transform: scale(.98); }
 
-    .play-button:hover {
-      background-color: #ff4e80;
-    }
-
-    #countdown {
-      font-size: 3em;
-      font-weight: bold;
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
-    }
-
-    .hearts {
-      font-size: 2em;
-      animation: floatHearts 2s infinite alternate ease-in-out;
-    }
-
+    .hearts { font-size: 2em; animation: floatHearts 2s infinite alternate ease-in-out; }
     @keyframes floatHearts {
       0% { transform: translateY(0); }
       100% { transform: translateY(-10px); }
     }
 
-    .glow-heart {
-      font-size: 4em;
-      margin-top: 20px;
-      animation: pulse 1.5s infinite;
-      filter: drop-shadow(0 0 10px rgba(255, 0, 100, 0.7));
-    }
+    .countdown { font-size: 3em; font-weight: bold; text-shadow: 0 0 20px rgba(255, 255, 255, 0.9); }
+    .glow-heart { font-size: 4em; margin-top: 20px; animation: pulse 1.5s infinite; filter: drop-shadow(0 0 10px rgba(255, 0, 100, 0.7)); }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    .love-note { margin-top: 16px; font-size: 1.1em; max-width: 640px; opacity:.95 }
+    .meta { opacity:.9; margin-top:.4rem; }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-      100% { transform: scale(1); }
-    }
-
-    .love-note {
-      margin-top: 20px;
-      font-size: 1.2em;
-      max-width: 600px;
-    }
-
-    #jemma-screen {
+    /* Fullscreen reveal */
+    .reveal {
       position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 100vw;
+      inset:0;
       background-color: black;
       color: white;
       display: flex;
@@ -98,16 +114,14 @@
       opacity: 0;
       z-index: 999;
       pointer-events: none;
-      transition: opacity 1.5s ease-in-out;
+      transition: opacity 1.2s ease-in-out;
       overflow: hidden;
+      text-align:center;
+      padding:1rem;
     }
+    .reveal.show { opacity: 1; pointer-events: auto; }
 
-    #jemma-screen.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    #jemma-name {
+    .reveal-name {
       font-size: 7em;
       color: white;
       text-shadow:
@@ -115,141 +129,276 @@
         0 0 40px rgba(255, 105, 135, 0.8),
         0 0 60px rgba(255, 105, 135, 0.6);
       z-index: 10;
+      margin:0;
+      line-height:1;
     }
-
-    #jemma-sub {
+    .reveal-sub {
       margin-top: 10px;
       font-size: 2em;
       color: white;
       text-shadow:
-        0 0 10px rgba(255, 255, 255, 0.8),
-        0 0 20px rgba(255, 105, 135, 0.4);
+        0 0 10px rgba(255, 255, 255, 0.85),
+        0 0 20px rgba(255, 105, 135, 0.45);
       z-index: 10;
     }
 
-    .flower-scatter {
+    /* Flowers */
+    .flower-scatter { position: absolute; inset:0; pointer-events: none; z-index:0; }
+    .flower {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      width: 40px; height: 40px;
+      opacity: 0;
+      animation: floatFlower 6s ease-in-out infinite alternate, fadeIn 2s ease-in-out forwards;
+    }
+    @keyframes floatFlower {
+      0%   { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(-20px) rotate(30deg); }
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Responsiveness */
+    @media (max-width: 600px) {
+      .countdown { font-size: 2.1em; }
+      .reveal-name { font-size: 4.6em; }
+      .reveal-sub { font-size: 1.4em; }
+    }
+
+    /* --- Floating Stars for New Trip --- */
+    #stars-new {
+      position: absolute;
+      inset: 0;
       pointer-events: none;
       z-index: 0;
     }
-
-    .flower {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  opacity: 0;
-  animation: floatFlower 6s ease-in-out infinite alternate, fadeIn 2s ease-in-out forwards;
-}
-
-    @keyframes floatFlower {
-  0% { transform: translateY(0) rotate(0deg); }
-  100% { transform: translateY(-20px) rotate(30deg); }
-}
-      100% { transform: translateY(-20px) rotate(30deg); opacity: 1; }
+    .star {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      opacity: 0;
+      color: white;
+      font-size: 1.2em;
+      animation: floatStar 8s ease-in-out infinite alternate, fadeInStar 2s ease-in-out forwards;
+    }
+    @keyframes floatStar {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+      100% { transform: translateY(-30px) rotate(20deg); opacity: 1; }
+    }
+    @keyframes fadeInStar {
+      from { opacity: 0; }
+      to   { opacity: 0.9; }
     }
 
-    @media (max-width: 600px) {
-      #countdown { font-size: 2.2em; }
-      #jemma-name { font-size: 5em; }
-      #jemma-sub { font-size: 1.5em; }
+    /* American theme for the New Trip tab */
+    #new{
+    position: relative;
+    /* softer USA theme: navy → light-gray → red */
+    background: linear-gradient(135deg, #002868 0%, #f2f2f2 50%, #bf0a30 100%);
+    color:#fff;
     }
-  @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-</style>
+
+    #new::before {
+    content:"";
+    position:absolute;
+    inset:0;
+    background: rgba(0,0,0,0.25); /* dark overlay */
+    z-index:0;
+    }
+
+    #new .main-content,
+    #new .reveal {
+    position:relative;
+    z-index:1; /* keep text above overlay */
+    }
+
+
+    #new h1 { text-shadow: 0 0 12px rgba(0,0,0,0.5); font-weight: 700; }
+    #new .countdown { text-shadow: 0 0 15px rgba(0,0,0,0.6); }
+    #new .glow-heart { color:#fff; filter: drop-shadow(0 0 8px rgba(255,255,255,0.7)); }
+    #new .love-note { font-style: italic; opacity: .9; }
+  </style>
 </head>
 <body>
 
-  <div id="main-content">
-    <button class="play-button" onclick="playMusic()">🎵 Play Our Song</button>
-    
-    <div class="hearts">💕💫💕</div>
-    <h1>When do Jemma and Clay meet next?</h1>
-    <div id="countdown">Loading...</div>
-    <div class="location">📍 Pyeongtaek, South Korea</div>
-    <div class="glow-heart">❤️</div>
-    <div class="hearts">💞🌙💞</div>
-    <p class="love-note">Towards the Future. Kohti tulevaisuutta. 미래를 향하여.</p>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn" data-tab="past">South Korea Aug '25</button>
+    <button class="tab-btn active" data-tab="new">America Sept '25</button>
+    <button class="play-button" style="margin-left:auto" onclick="playMusic()">🎵 Play Our Song</button>
   </div>
 
-  <div id="jemma-screen">
-    <h1 id="jemma-name">JEMMA</h1>
-    <p id="jemma-sub">Welcome home 🇰🇷</p>
-    <div class="flower-scatter" id="flower-container"></div>
-  </div>
+  <!-- PAST SECTION -->
+  <section id="past" class="section">
+    <div class="main-content">
+      <div class="hearts">💕💫💕</div>
+      <h1>When do Jemma and Clay meet next?</h1>
+      <div class="countdown" id="countdown-past">Loading...</div>
+      <div class="meta">📍 Pyeongtaek, South Korea</div>
+      <div class="glow-heart">❤️</div>
+      <div class="hearts">💞🌙💞</div>
+      <p class="love-note">Towards the Future. Kohti tulevaisuutta. 미래를 향하여.</p>
+    </div>
 
+    <div class="reveal" id="reveal-past">
+      <h1 class="reveal-name">JEMMA</h1>
+      <p class="reveal-sub">Welcome home 🇰🇷</p>
+      <div class="flower-scatter" id="flowers-past"></div>
+    </div>
+  </section>
+
+  <!-- NEW TRIP SECTION -->
+  <section id="new" class="section active">
+    <div class="main-content">
+      <div class="hearts">✨🇺🇸✨</div>
+      <h1>Jemma & Clay's Great American Trip</h1>
+      <div class="countdown" id="countdown-new">Loading...</div>
+      <div class="meta">📍 America</div>
+      <div class="glow-heart">🤍</div>
+      <p class="love-note">The grass is greener where you water it</p>
+    </div>
+
+    <!-- Stars layer for the New Trip -->
+    <div id="stars-new"></div>
+
+    <div class="reveal" id="reveal-new">
+      <h1 class="reveal-name">JEMMA</h1>
+      <p class="reveal-sub">Welcome to America 🇺🇸</p>
+      <div class="flower-scatter" id="flowers-new"></div>
+    </div>
+  </section>
+
+  <!-- Audio -->
   <audio id="bg-music" loop>
     <source src="song.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
   <script>
+    /* --------- Music --------- */
     function playMusic() {
       const audio = document.getElementById("bg-music");
       audio.muted = false;
-      audio.play().catch(error => console.log("Autoplay blocked:", error));
+      audio.play().catch(err => console.log("Autoplay blocked:", err));
     }
 
-    function showJemmaScreen() {
-      const main = document.getElementById("main-content");
-      const jemma = document.getElementById("jemma-screen");
+    /* --------- Tabs --------- */
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('.section');
+    tabButtons.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        tabButtons.forEach(b=>b.classList.remove('active'));
+        sections.forEach(s=>s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        handleTimerActivation(btn.dataset.tab);
+      });
+    });
 
-      main.classList.add("fade-out");
-
-      setTimeout(() => {
-        jemma.classList.add("show");
-        scatterFlowers();
-      }, 1500);
-    }
-
-    const targetDate = new Date("2025-08-08T11:00:55").getTime();
-    const timer = setInterval(updateCountdown, 1000);
-    updateCountdown();
-
-    function updateCountdown() {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
-
-      if (distance <= 0) {
-        clearInterval(timer);
-        showJemmaScreen();
-        return;
-      }
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      document.getElementById("countdown").innerHTML =
-        `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
-
-    function scatterFlowers() {
-      const container = document.getElementById("flower-container");
-      const flowerEmojis = [
-  "%F0%9F%8C%B8", "%F0%9F%8C%B8", "%F0%9F%8C%B8", "%F0%9F%8C%B8", "%F0%9F%8C%BA"
-];
-
-      for (let i = 0; i < 80; i++) {
-        const flower = document.createElement("img");
-        const emoji = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
-        flower.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 100 100'%3E%3Ctext x='0' y='75' font-size='80'%3E${emoji}%3C/text%3E%3C/svg%3E`;
-        flower.classList.add("flower");
-
-        flower.style.left = `${Math.random() * 100}vw`;
-        flower.style.top = `${Math.random() * 100}vh`;
-        flower.style.animationDuration = `${3 + Math.random() * 3}s`;
-        flower.style.transform = `rotate(${Math.random() * 360}deg)`;
-
-        container.appendChild(flower);
+    /* --------- Flower scatter (emoji-safe) --------- */
+    function scatterFlowers(containerId, count=80) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      const emojis = ['🌸','🌸','🌸','🌸','🌺'];
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('img');
+        const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+        const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 100 100'><text x='0' y='75' font-size='80'>${emoji}</text></svg>`;
+        el.src = 'data:image/svg+xml,' + encodeURIComponent(svg);
+        el.className = 'flower';
+        el.style.left = `${Math.random()*100}vw`;
+        el.style.top  = `${Math.random()*100}vh`;
+        el.style.animationDuration = `${3 + Math.random()*3}s`;
+        el.style.transform = `rotate(${Math.random()*360}deg)`;
+        container.appendChild(el);
       }
     }
+
+    /* --------- Scatter Stars (New Trip only) --------- */
+    function scatterStars(containerId, count=40) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.textContent = '⭐';
+        el.className = 'star';
+        el.style.left = `${Math.random() * 100}vw`;
+        el.style.top  = `${Math.random() * 100}vh`;
+        el.style.animationDuration = `${5 + Math.random() * 5}s`;
+        el.style.transform = `rotate(${Math.random() * 360}deg)`;
+        container.appendChild(el);
+      }
+    }
+
+    /* --------- Countdown engine (multi-section) --------- */
+    const timers = new Map();
+
+    function initCountdown(opts){
+      const { countdownElId, revealElId, flowersElId, targetDate } = opts;
+
+      function showReveal(){
+        const rev = document.getElementById(revealElId);
+        rev.classList.add('show');
+        scatterFlowers(flowersElId);
+      }
+
+      function tick(){
+        const now = Date.now();
+        const dist = targetDate - now;
+
+        if (dist <= 0){
+          clearInterval(timers.get(countdownElId));
+          timers.delete(countdownElId);
+          const el = document.getElementById(countdownElId);
+          if (el) el.textContent = '0d 0h 0m 0s';
+          showReveal();
+          return;
+        }
+        const days = Math.floor(dist / (1000*60*60*24));
+        const hours = Math.floor((dist % (1000*60*60*24)) / (1000*60*60));
+        const minutes = Math.floor((dist % (1000*60*60)) / (1000*60));
+        const seconds = Math.floor((dist % (1000*60)) / 1000);
+        const el = document.getElementById(countdownElId);
+        if (el) el.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+
+      tick();
+      const interval = setInterval(tick, 1000);
+      timers.set(countdownElId, interval);
+    }
+
+    function stopAllTimers(){
+      for (const [,id] of timers) clearInterval(id);
+      timers.clear();
+    }
+
+    function handleTimerActivation(tabId){
+      stopAllTimers();
+      if (tabId === 'past'){
+        initCountdown({
+          countdownElId: 'countdown-past',
+          revealElId: 'reveal-past',
+          flowersElId: 'flowers-past',
+          targetDate: new Date("2025-08-08T11:00:55").getTime()
+        });
+      } else if (tabId === 'new'){
+        initCountdown({
+          countdownElId: 'countdown-new',
+          revealElId: 'reveal-new',
+          flowersElId: 'flowers-new',
+          targetDate: NEW_TRIP_DATE.getTime()
+        });
+        scatterStars('stars-new'); // draw subtle USA stars
+      }
+    }
+
+    /* --------- NEW TRIP DATE --------- */
+    // Jemma’s first landing in America! Wed, Sep 24, 2025 at 18:30 PDT
+    const NEW_TRIP_DATE = new Date("2025-09-24T18:30:00-07:00");
+
+    /* --------- Boot --------- */
+    // Start on the New Trip tab
+    handleTimerActivation('new');
   </script>
 </body>
 </html>
