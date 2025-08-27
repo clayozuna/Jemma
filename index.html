@@ -24,17 +24,27 @@
       overflow: hidden;
     }
 
-    /* Tabs */
+    /* Tabs (auto-themed via body class) */
     .tabs {
       display:flex;
       gap:.5rem;
       padding:.75rem 1rem;
       position: sticky;
       top:0;
-      background: linear-gradient(to bottom right, var(--bg1), var(--bg2));
       z-index:1000;
       backdrop-filter: blur(6px);
+      transition: background 0.5s ease;
     }
+    body.theme-past .tabs {
+      background: linear-gradient(to bottom right, #ffdde1, #ee9ca7); /* Korea (pink) */
+    }
+    body.theme-mini .tabs {
+      background: linear-gradient(135deg, #0d47a1 0%, #1976d2 45%, #64b5f6 100%); /* Greece (blue) */
+    }
+    body.theme-new .tabs {
+      background: linear-gradient(135deg, #002868 0%, #f2f2f2 50%, #bf0a30 100%); /* USA */
+    }
+
     .tab-btn{
       border:none;
       padding:.6rem 1rem;
@@ -53,11 +63,8 @@
       transform: translateY(-1px);
     }
 
-    /* Shared main content */
-    .section {
-      height: calc(100vh - 56px);
-      display:none;
-    }
+    /* Sections */
+    .section { height: calc(100vh - 56px); display:none; }
     .section.active { display:block; }
 
     .main-content {
@@ -74,26 +81,31 @@
     }
     .main-content.fade-out { opacity:0; }
 
+    /* Play button (base + theme overrides) */
     .play-button {
+      margin-left:auto;
       margin-top: 10px;
       font-size: 1.05em;
       padding: 10px 20px;
       border: none;
       border-radius: 12px;
-      background-color: var(--pink);
       color: white;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       cursor: pointer;
       transition: background-color 0.25s ease, transform .1s ease;
     }
-    .play-button:hover { background-color: var(--pink-dark); }
     .play-button:active { transform: scale(.98); }
 
+    body.theme-past .play-button { background-color: var(--pink); }
+    body.theme-past .play-button:hover { background-color: var(--pink-dark); }
+    body.theme-mini .play-button { background-color:#1565c0; }
+    body.theme-mini .play-button:hover { background-color:#0d47a1; }
+    body.theme-new .play-button { background-color:#bf0a30; }
+    body.theme-new .play-button:hover { background-color:#8b0723; }
+
+    /* Cute bits */
     .hearts { font-size: 2em; animation: floatHearts 2s infinite alternate ease-in-out; }
-    @keyframes floatHearts {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-10px); }
-    }
+    @keyframes floatHearts { 0% { transform: translateY(0);} 100% { transform: translateY(-10px);} }
 
     .countdown { font-size: 3em; font-weight: bold; text-shadow: 0 0 20px rgba(255, 255, 255, 0.9); }
     .glow-heart { font-size: 4em; margin-top: 20px; animation: pulse 1.5s infinite; filter: drop-shadow(0 0 10px rgba(255, 0, 100, 0.7)); }
@@ -107,10 +119,10 @@
       inset:0;
       background-color: black;
       color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
       opacity: 0;
       z-index: 999;
       pointer-events: none;
@@ -120,7 +132,6 @@
       padding:1rem;
     }
     .reveal.show { opacity: 1; pointer-events: auto; }
-
     .reveal-name {
       font-size: 7em;
       color: white;
@@ -128,9 +139,7 @@
         0 0 20px rgba(255, 105, 135, 1),
         0 0 40px rgba(255, 105, 135, 0.8),
         0 0 60px rgba(255, 105, 135, 0.6);
-      z-index: 10;
-      margin:0;
-      line-height:1;
+      margin:0; line-height:1;
     }
     .reveal-sub {
       margin-top: 10px;
@@ -139,21 +148,13 @@
       text-shadow:
         0 0 10px rgba(255, 255, 255, 0.85),
         0 0 20px rgba(255, 105, 135, 0.45);
-      z-index: 10;
     }
 
     /* Flowers */
     .flower-scatter { position: absolute; inset:0; pointer-events: none; z-index:0; }
-    .flower {
-      position: absolute;
-      width: 40px; height: 40px;
-      opacity: 0;
-      animation: floatFlower 6s ease-in-out infinite alternate, fadeIn 2s ease-in-out forwards;
-    }
-    @keyframes floatFlower {
-      0%   { transform: translateY(0) rotate(0deg); }
-      100% { transform: translateY(-20px) rotate(30deg); }
-    }
+    .flower { position: absolute; width: 40px; height: 40px; opacity: 0;
+      animation: floatFlower 6s ease-in-out infinite alternate, fadeIn 2s ease-in-out forwards; }
+    @keyframes floatFlower { 0%{ transform: translateY(0) rotate(0deg);} 100%{ transform: translateY(-20px) rotate(30deg);} }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     /* Responsiveness */
@@ -164,66 +165,58 @@
     }
 
     /* --- Floating Stars for New Trip --- */
-    #stars-new {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .star {
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      opacity: 0;
-      color: white;
-      font-size: 1.2em;
-      animation: floatStar 8s ease-in-out infinite alternate, fadeInStar 2s ease-in-out forwards;
-    }
-    @keyframes floatStar {
-      0%   { transform: translateY(0) rotate(0deg); opacity: 0.7; }
-      100% { transform: translateY(-30px) rotate(20deg); opacity: 1; }
-    }
-    @keyframes fadeInStar {
-      from { opacity: 0; }
-      to   { opacity: 0.9; }
-    }
+    #stars-new { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .star { position: absolute; width: 18px; height: 18px; opacity: 0; color: white; font-size: 1.2em;
+      animation: floatStar 8s ease-in-out infinite alternate, fadeInStar 2s ease-in-out forwards; }
+    @keyframes floatStar { 0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+                           100% { transform: translateY(-30px) rotate(20deg); opacity: 1; } }
+    @keyframes fadeInStar { from { opacity: 0; } to { opacity: 0.9; } }
 
     /* American theme for the New Trip tab */
     #new{
-    position: relative;
-    /* softer USA theme: navy → light-gray → red */
-    background: linear-gradient(135deg, #002868 0%, #f2f2f2 50%, #bf0a30 100%);
-    color:#fff;
+      position: relative;
+      background: linear-gradient(135deg, #002868 0%, #f2f2f2 50%, #bf0a30 100%);
+      color:#fff;
     }
-
-    #new::before {
-    content:"";
-    position:absolute;
-    inset:0;
-    background: rgba(0,0,0,0.25); /* dark overlay */
-    z-index:0;
-    }
-
-    #new .main-content,
-    #new .reveal {
-    position:relative;
-    z-index:1; /* keep text above overlay */
-    }
-
-
+    #new::before { content:""; position:absolute; inset:0; background: rgba(0,0,0,0.25); z-index:0; }
+    #new .main-content, #new .reveal { position:relative; z-index:1; }
     #new h1 { text-shadow: 0 0 12px rgba(0,0,0,0.5); font-weight: 700; }
     #new .countdown { text-shadow: 0 0 15px rgba(0,0,0,0.6); }
     #new .glow-heart { color:#fff; filter: drop-shadow(0 0 8px rgba(255,255,255,0.7)); }
     #new .love-note { font-style: italic; opacity: .9; }
+
+    /* Greece theme for FaceTime Reunion */
+    #mini{
+      position: relative;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.18), transparent 60%),
+                  linear-gradient(135deg, #0d47a1 0%, #1976d2 45%, #64b5f6 100%);
+      color:#fff;
+    }
+    #mini::before{
+      content:""; position:absolute; inset:0;
+      background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.18) 0 18px, transparent 18px 36px);
+      z-index:0;
+    }
+    #mini .main-content, #mini .reveal { position:relative; z-index:1; }
+    #mini h1 { text-shadow: 0 0 16px rgba(0,0,0,.45); }
+    #mini .glow-heart { filter: drop-shadow(0 0 10px rgba(255,255,255,.9)); }
+
+    /* Floating icons for Greece tab */
+    #icons-mini{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+    .greek-icon{ position:absolute; opacity:0; font-size: 1.4rem;
+      animation: floatGreek 9s ease-in-out infinite alternate, fadeInGreek 2.5s ease-in-out forwards; }
+    @keyframes floatGreek{ 0% { transform: translateY(0) rotate(0deg);} 100% { transform: translateY(-26px) rotate(12deg);} }
+    @keyframes fadeInGreek{ from { opacity:0; } to { opacity:.95; } }
   </style>
 </head>
-<body>
+<body class="theme-new"><!-- default class; auto-selection will change it -->
 
   <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn" data-tab="past">South Korea Aug '25</button>
-    <button class="tab-btn active" data-tab="new">America Sept '25</button>
-    <button class="play-button" style="margin-left:auto" onclick="playMusic()">🎵 Play Our Song</button>
+    <button class="tab-btn" data-tab="mini">FaceTime Reunion</button>
+    <button class="tab-btn" data-tab="new">America Sept '25</button>
+    <button id="play-btn" class="play-button" onclick="playMusic()">🎵 Play Our Song</button>
   </div>
 
   <!-- PAST SECTION -->
@@ -245,8 +238,29 @@
     </div>
   </section>
 
+  <!-- FACETIME (GREECE) SECTION -->
+  <section id="mini" class="section">
+    <div class="main-content">
+      <div class="hearts">🇬🇷✨🇬🇷</div>
+      <h1>FaceTime Countdown</h1>
+      <div class="countdown" id="countdown-mini">Loading...</div>
+      <div class="meta">📍 FaceTime</div>
+      <div class="glow-heart">💙</div>
+      <p class="love-note">Love you across the world and back!</p>
+    </div>
+
+    <!-- floating Greece icons -->
+    <div id="icons-mini"></div>
+
+    <div class="reveal" id="reveal-mini">
+      <h1 class="reveal-name">FACETIME DAY</h1>
+      <p class="reveal-sub">Welcome back from vacation 🇬🇷</p>
+      <div class="flower-scatter" id="flowers-mini"></div>
+    </div>
+  </section>
+
   <!-- NEW TRIP SECTION -->
-  <section id="new" class="section active">
+  <section id="new" class="section">
     <div class="main-content">
       <div class="hearts">✨🇺🇸✨</div>
       <h1>Jemma & Clay's Great American Trip</h1>
@@ -283,17 +297,27 @@
     /* --------- Tabs --------- */
     const tabButtons = document.querySelectorAll('.tab-btn');
     const sections = document.querySelectorAll('.section');
+    const playBtn = document.getElementById('play-btn');
+
+    function setActiveTab(tabId){
+      // update buttons/sections
+      tabButtons.forEach(b=>{
+        b.classList.toggle('active', b.dataset.tab===tabId);
+      });
+      sections.forEach(s=>{
+        s.classList.toggle('active', s.id===tabId);
+      });
+      // run activation logic (theme, timers, emoji, effects)
+      handleTimerActivation(tabId);
+    }
+
     tabButtons.forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        tabButtons.forEach(b=>b.classList.remove('active'));
-        sections.forEach(s=>s.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-        handleTimerActivation(btn.dataset.tab);
+        setActiveTab(btn.dataset.tab);
       });
     });
 
-    /* --------- Flower scatter (emoji-safe) --------- */
+    /* --------- Cute FX helpers --------- */
     function scatterFlowers(containerId, count=80) {
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -313,7 +337,6 @@
       }
     }
 
-    /* --------- Scatter Stars (New Trip only) --------- */
     function scatterStars(containerId, count=40) {
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -330,6 +353,23 @@
       }
     }
 
+    function scatterGreekIcons(containerId, count=40){
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      const icons = ['🏛️','🫒','🏛️','🫒','🌀','🌊'];
+      for (let i = 0; i < count; i++){
+        const el = document.createElement('div');
+        el.textContent = icons[Math.floor(Math.random()*icons.length)];
+        el.className = 'greek-icon';
+        el.style.left = `${Math.random()*100}vw`;
+        el.style.top  = `${Math.random()*100}vh`;
+        el.style.animationDuration = `${6 + Math.random()*6}s`;
+        el.style.transform = `rotate(${Math.random()*360}deg)`;
+        container.appendChild(el);
+      }
+    }
+
     /* --------- Countdown engine (multi-section) --------- */
     const timers = new Map();
 
@@ -338,8 +378,8 @@
 
       function showReveal(){
         const rev = document.getElementById(revealElId);
-        rev.classList.add('show');
-        scatterFlowers(flowersElId);
+        if (rev){ rev.classList.add('show'); }
+        if (flowersElId) scatterFlowers(flowersElId);
       }
 
       function tick(){
@@ -374,13 +414,31 @@
 
     function handleTimerActivation(tabId){
       stopAllTimers();
+
+      /* Switch body theme to recolor the top banner + play button */
+      document.body.classList.remove('theme-past','theme-mini','theme-new');
+      document.body.classList.add('theme-' + tabId);
+
+      /* Update play button emoji per tab */
+      if (tabId==='past'){ playBtn.textContent = "🎵 Play Our Song"; }
+      else if (tabId==='mini'){ playBtn.textContent = "🎶 Play Our Song"; }
+      else if (tabId==='new'){ playBtn.textContent = "🎸 Play Our Song"; }
+
       if (tabId === 'past'){
         initCountdown({
           countdownElId: 'countdown-past',
           revealElId: 'reveal-past',
           flowersElId: 'flowers-past',
-          targetDate: new Date("2025-08-08T11:00:55").getTime()
+          targetDate: PAST_TRIP_DATE.getTime()
         });
+      } else if (tabId === 'mini'){
+        initCountdown({
+          countdownElId: 'countdown-mini',
+          revealElId: 'reveal-mini',
+          flowersElId: 'flowers-mini',
+          targetDate: MINI_REUNION_DATE.getTime()
+        });
+        scatterGreekIcons('icons-mini');
       } else if (tabId === 'new'){
         initCountdown({
           countdownElId: 'countdown-new',
@@ -388,17 +446,38 @@
           flowersElId: 'flowers-new',
           targetDate: NEW_TRIP_DATE.getTime()
         });
-        scatterStars('stars-new'); // draw subtle USA stars
+        scatterStars('stars-new');
       }
     }
 
-    /* --------- NEW TRIP DATE --------- */
-    // Jemma’s first landing in America! Wed, Sep 24, 2025 at 18:30 PDT
-    const NEW_TRIP_DATE = new Date("2025-09-24T18:30:00-07:00");
+    /* --------- DATES --------- */
+    const PAST_TRIP_DATE = new Date("2025-08-08T11:00:55");               // Korea
+    const MINI_REUNION_DATE = new Date("2025-09-02T00:00:00+03:00");      // Greece (Athens time)
+    const NEW_TRIP_DATE  = new Date("2025-09-24T18:30:00-07:00");         // America (PDT)
+
+    /* --------- Auto-select nearest upcoming tab --------- */
+    function selectNearestTab(){
+      const now = Date.now();
+      const candidates = [
+        { id: 'past', date: PAST_TRIP_DATE },
+        { id: 'mini', date: MINI_REUNION_DATE },
+        { id: 'new',  date: NEW_TRIP_DATE  },
+      ];
+
+      // Keep only future events; pick the one with the smallest positive remaining time
+      const future = candidates
+        .map(c => ({ id: c.id, ms: c.date.getTime() - now }))
+        .filter(c => c.ms > 0)
+        .sort((a,b) => a.ms - b.ms);
+
+      const target = future.length ? future[0].id : 'new'; // fallback
+      setActiveTab(target);
+    }
 
     /* --------- Boot --------- */
-    // Start on the New Trip tab
-    handleTimerActivation('new');
+    // On first paint, choose the nearest upcoming countdown automatically
+    document.addEventListener('DOMContentLoaded', selectNearestTab);
+
   </script>
 </body>
 </html>
