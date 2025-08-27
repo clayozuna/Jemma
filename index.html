@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- iOS notch + proper scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Jemma & Clay – Visits & Countdown</title>
   <style>
     :root{
@@ -10,18 +11,32 @@
       --bg2:#ee9ca7;
       --pink:#ff85a2;
       --pink-dark:#ff4e80;
+
+      /* Layout vars */
+      --vhpx: 100vh;     /* JS updates this for iOS */
+      --tabs-h: 56px;    /* tabs bar height */
+    }
+
+    /* Move gradient to html to avoid iOS "pink flash" */
+    html{
+      background: linear-gradient(to bottom right, var(--bg1), var(--bg2));
+      background-color: var(--bg1); /* solid fallback */
+      min-height: 100svh;           /* safer unit on iOS */
     }
 
     /* Base */
-    html,body{height:100%}
-    body {
+    html, body{
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to bottom right, var(--bg1), var(--bg2));
       color: white;
-      min-height:100vh;
-      overflow: hidden;
+      min-height: 100svh;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: none;
+    }
+    body{
+      background: transparent;
+      /* IMPORTANT: previously had overflow:hidden; — removed to prevent iOS scroll freeze */
     }
 
     /* Tabs (auto-themed via body class) */
@@ -33,7 +48,13 @@
       top:0;
       z-index:1000;
       backdrop-filter: blur(6px);
-      transition: background 0.5s ease;
+      -webkit-backdrop-filter: blur(6px);
+      transform: translateZ(0);      /* promote to own layer */
+      backface-visibility: hidden;
+      /* notch-safe padding */
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right:max(1rem, env(safe-area-inset-right));
+      padding-top: max(.75rem, calc(env(safe-area-inset-top)));
     }
     body.theme-past .tabs {
       background: linear-gradient(to bottom right, #ffdde1, #ee9ca7); /* Korea (pink) */
@@ -63,8 +84,15 @@
       transform: translateY(-1px);
     }
 
-    /* Sections */
-    .section { height: calc(100vh - 56px); display:none; }
+    /* Sections — replace 100vh with iOS-safe calc using --vhpx */
+    .section {
+      /* Fill viewport below the tabs bar, without jank on iOS toolbar resize */
+      min-height: calc(var(--vhpx) - var(--tabs-h));
+      display:none;
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right:max(1rem, env(safe-area-inset-right));
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
     .section.active { display:block; }
 
     .main-content {
@@ -72,7 +100,7 @@
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      height:100%;
+      min-height: calc(var(--vhpx) - var(--tabs-h));
       text-align:center;
       transition: opacity 1.2s ease-in-out;
       position:relative;
@@ -113,11 +141,11 @@
     .love-note { margin-top: 16px; font-size: 1.1em; max-width: 640px; opacity:.95 }
     .meta { opacity:.9; margin-top:.4rem; }
 
-    /* Fullscreen reveal */
+    /* Fullscreen reveal (no fixed background-attachment) */
     .reveal {
       position: fixed;
       inset:0;
-      background-color: black;
+      background-color: rgba(0,0,0,1);
       color: white;
       display:flex;
       flex-direction:column;
@@ -207,6 +235,23 @@
       animation: floatGreek 9s ease-in-out infinite alternate, fadeInGreek 2.5s ease-in-out forwards; }
     @keyframes floatGreek{ 0% { transform: translateY(0) rotate(0deg);} 100% { transform: translateY(-26px) rotate(12deg);} }
     @keyframes fadeInGreek{ from { opacity:0; } to { opacity:.95; } }
+
+    /* iOS-specific overrides: keep scrolling fluid, curb heavy filters */
+    @supports (-webkit-touch-callout: none){
+      body{ overflow: visible !important; }
+      .tabs{
+        /* Tone down heavy blur if needed on iOS */
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+        background: rgba(0,0,0,0.12);
+      }
+    }
+
+    /* Reduce motion (battery/jank guard) */
+    @media (prefers-reduced-motion: reduce){
+      .hearts, .flower, .star, .greek-icon, .glow-heart { animation: none !important; }
+      .tabs, .tab-btn { transition: none !important; }
+    }
   </style>
 </head>
 <body class="theme-new"><!-- default class; auto-selection will change it -->
@@ -287,6 +332,16 @@
   </audio>
 
   <script>
+    /* ---------- iOS-safe viewport height (sets --vhpx to innerHeight) ---------- */
+    (function setVhVar(){
+      const set = () => {
+        document.documentElement.style.setProperty('--vhpx', window.innerHeight + 'px');
+      };
+      set();
+      window.addEventListener('resize', set, { passive: true });
+      window.addEventListener('orientationchange', set, { passive: true });
+    })();
+
     /* --------- Music --------- */
     function playMusic() {
       const audio = document.getElementById("bg-music");
@@ -309,19 +364,24 @@
       });
       // run activation logic (theme, timers, emoji, effects)
       handleTimerActivation(tabId);
+      // scroll to top smoothly without trapping scroll
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
 
     tabButtons.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        setActiveTab(btn.dataset.tab);
-      });
+      btn.addEventListener('click', ()=> setActiveTab(btn.dataset.tab), { passive: true });
     });
 
-    /* --------- Cute FX helpers --------- */
-    function scatterFlowers(containerId, count=80) {
+    /* --------- Cute FX helpers (transform + opacity only) --------- */
+    function scatterFlowers(containerId, desired=80) {
       const container = document.getElementById(containerId);
       if (!container) return;
       container.innerHTML = '';
+
+      // Cap counts on iOS to avoid heavy repaints
+      const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const count = isiOS ? Math.min(desired, 30) : desired;
+
       const emojis = ['🌸','🌸','🌸','🌸','🌺'];
       for (let i = 0; i < count; i++) {
         const el = document.createElement('img');
@@ -337,10 +397,14 @@
       }
     }
 
-    function scatterStars(containerId, count=40) {
+    function scatterStars(containerId, desired=40) {
       const container = document.getElementById(containerId);
       if (!container) return;
       container.innerHTML = '';
+
+      const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const count = isiOS ? Math.min(desired, 24) : desired;
+
       for (let i = 0; i < count; i++) {
         const el = document.createElement('div');
         el.textContent = '⭐';
@@ -353,10 +417,14 @@
       }
     }
 
-    function scatterGreekIcons(containerId, count=40){
+    function scatterGreekIcons(containerId, desired=40){
       const container = document.getElementById(containerId);
       if (!container) return;
       container.innerHTML = '';
+
+      const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const count = isiOS ? Math.min(desired, 24) : desired;
+
       const icons = ['🏛️','🫒','🏛️','🫒','🌀','🌊'];
       for (let i = 0; i < count; i++){
         const el = document.createElement('div');
@@ -405,6 +473,15 @@
       tick();
       const interval = setInterval(tick, 1000);
       timers.set(countdownElId, interval);
+
+      // Pause timer when tab becomes hidden to reduce background work on iOS
+      const visHandler = () => {
+        if (document.hidden && timers.has(countdownElId)) {
+          clearInterval(timers.get(countdownElId));
+          timers.delete(countdownElId);
+        }
+      };
+      document.addEventListener('visibilitychange', visHandler, { passive: true, once:true });
     }
 
     function stopAllTimers(){
@@ -475,9 +552,9 @@
     }
 
     /* --------- Boot --------- */
-    // On first paint, choose the nearest upcoming countdown automatically
-    document.addEventListener('DOMContentLoaded', selectNearestTab);
+    document.addEventListener('DOMContentLoaded', selectNearestTab, { passive: true });
 
+    /* Defensive: no touchmove preventDefault; no fixed background-attachment anywhere */
   </script>
 </body>
 </html>
